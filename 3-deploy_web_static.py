@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-# Fabfile to distribute an archive to a web server.
-
+# Fabfile to create and distribute an archive to a web server.
 import os.path
 from fabric.api import local, put, run, env
 from datetime import datetime
@@ -11,7 +10,7 @@ env.hosts = ['100.25.157.28', '54.237.127.66']
 
 def do_pack():
     """
-    Targginng project directory into a packages as .tgz
+    Targging project directory into a packages as .tgz
     """
     now = datetime.now().strftime("%Y%m%d%H%M%S")
     local('sudo mkdir -p ./versions')
@@ -32,7 +31,7 @@ def do_deploy(archive_path):
         path = '/data/web_static/releases/' + archive.strip('.tgz')
         current = '/data/web_static/current'
         put(archive_path, '/tmp')
-        run('mkdir -p {}/'.format(path))
+        run('mkdir -p {}'.format(path))
         run('tar -xzf /tmp/{} -C {}'.format(archive, path))
         run('rm /tmp/{}'.format(archive))
         run('mv {}/web_static/* {}'.format(path, path))
@@ -43,3 +42,12 @@ def do_deploy(archive_path):
         return True
     except:
         return False
+
+
+def deploy():
+    """
+    A function to call do_pack and do_deploy
+    """
+    archive_path = do_pack()
+    answer = do_deploy(archive_path)
+    return answer
